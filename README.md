@@ -4,7 +4,7 @@
 
 ## 在线访问
 
-部署完成后可从 GitHub Pages 页面访问本项目（仓库 Settings → Pages 中可查看实际地址）。
+在线访问：[半导体设备零部件思维图谱](https://yikunmousson.github.io/semiconductor-parts-mindmaps/)。
 
 ## 更新
 
