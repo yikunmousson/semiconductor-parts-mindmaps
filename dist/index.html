@@ -602,6 +602,34 @@
       html { scroll-behavior: auto; }
       *, *::before, *::after { transition-duration: .01ms !important; }
     }
+    .diagram-board { border:1px solid var(--line); border-radius:18px; overflow:hidden; background:#fff; box-shadow:var(--shadow); }
+    .diagram-toolbar { display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line); }
+    .diagram-instructions { color:#536b63; font-size:12px; }
+    .diagram-controls { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+    .diagram-percent { min-width:42px; text-align:center; color:var(--ink); font-size:12px; font-variant-numeric:tabular-nums; }
+    .diagram-jumps { display:flex; flex-wrap:wrap; gap:7px; align-items:center; padding:12px 20px; background:#f9fbf8; font-size:12px; color:var(--muted); }
+    .diagram-jumps .filter-chip { padding:5px 10px; font-size:12px; }
+    .diagram-viewport { height:min(76vh, 1000px); min-height:440px; overflow:auto; overscroll-behavior:contain; background-color:#f7faf7; background-image:radial-gradient(#dce5de 1px, transparent 1px); background-size:20px 20px; scrollbar-width:auto; }
+    .diagram-viewport:focus-visible { outline:3px solid #648c7d; outline-offset:-3px; }
+    .diagram-space { position:relative; }
+    .diagram-canvas { position:absolute; top:0; left:0; transform-origin:0 0; }
+    .diagram-links { position:absolute; top:0; left:0; overflow:visible; pointer-events:none; }
+    .diagram-links > path { fill:none; stroke-width:1.6; stroke-linejoin:round; }
+    .graph-node { position:absolute; margin:0; border:1px solid var(--line); border-left:3px solid var(--mint-dark); border-radius:11px; padding:13px 15px; background:#fff; box-shadow:0 3px 12px #183b3608; }
+    .graph-node .concept-cn { padding-right:16px; font-size:15px; line-height:1.5; font-weight:650; }
+    .graph-node .concept-en { font-size:12px; line-height:1.45; margin-top:5px; overflow-wrap:anywhere; }
+    .graph-node .concept-ipa { font-size:12px; line-height:1.55; overflow-wrap:anywhere; color:#52685e; }
+    .graph-node .verify-pill { font-size:11px; margin-top:7px; }
+    .graph-node.tone-orange { border-left-color:var(--orange); }
+    .graph-node.tone-blue { border-left-color:var(--blue); }
+    .graph-node.tone-purple { border-left-color:var(--purple); }
+    .graph-node.tone-yellow { border-left-color:var(--yellow); }
+    .graph-root { background:var(--ink); border-color:var(--ink); color:#fff; text-align:center; padding:20px; }
+    .graph-root .concept-cn { color:#fff; font-size:19px; padding-right:0; }
+    .graph-root .concept-en, .graph-root .concept-ipa { color:#d5e7dc; }
+    .node-toggle { position:absolute; right:6px; top:7px; width:26px; height:26px; border:1px solid #d8e2da; background:#f2f7f3; border-radius:7px; color:var(--ink); font-size:18px; line-height:20px; padding:0; }
+    @media(max-width:760px) { .diagram-toolbar, .diagram-jumps { padding:12px; } .diagram-controls { gap:5px; } .diagram-controls .quiet-button { padding:7px 10px; } .diagram-viewport { height:68vh; min-height:420px; } .node-toggle { width:30px; height:30px; } }
+
   </style>
 </head>
 <body>
@@ -639,186 +667,619 @@
 
   <script>
     const maps = [
+  {
+    "id": "overview",
+    "nav": "零部件总图",
+    "title": "半导体设备核心零部件",
+    "kicker": "01 · SYSTEM MAP",
+    "subtitle": "按原始思维导图的父子关系展开。沿连线阅读；点击节点上的 − / + 可收起或展开下一级。",
+    "root": {
+      "cn": "半导体设备核心零部件",
+      "en": "Core semiconductor equipment components",
+      "ipa": "/kɔːr ˌsɛmɪkənˈdʌktər ɪˈkwɪpmənt kəmˈpoʊnənts/"
+    },
+    "groups": [
       {
-        id: "overview",
-        nav: "零部件总图",
-        title: "半导体设备核心零部件",
-        kicker: "01 · SYSTEM MAP",
-        subtitle: "先从零件在晶圆工艺中的职责建立全局：固定与承载、温度控制、工艺气体、射频系统，再到辅助部件。",
-        root: { cn: "半导体设备核心零部件", en: "Core semiconductor equipment components", ipa: "/kɔːr ˌsɛmɪkənˈdʌktər ɪˈkwɪpmənt kəmˈpoʊnənts/" },
-        groups: [
-          { cn: "晶圆固定与承载", en: "Wafer holding and support", ipa: "/ˈweɪfər ˈhoʊldɪŋ ænd səˈpɔːrt/", tone: "green", items: [
-            { cn: "静电卡盘（ESC）", en: "Electrostatic chuck · ESC", ipa: "/ɪˌlek.troʊˈstæt.ɪk tʃʌk/ · /ˌiː ɛs ˈsiː/", note: "卡盘固定晶圆；不同机型的结构与功能组合会有差异。" },
-            { cn: "MCA 卡盘", en: "MCA chuck", ipa: "", status: "缩写释义与读音待核实", note: "保留手稿写法，不展开 MCA，也不补猜测读音。" },
-            { cn: "顶针", en: "Lift pin", ipa: "/ˈlɪft pɪn/", note: "配合设备完成晶圆抬升与交接。" }
-          ]},
-          { cn: "温度控制", en: "Temperature control", ipa: "/ˈtem.pɚ.ə.tʃɚ kənˈtroʊl/", tone: "orange", items: [
-            { cn: "加热器", en: "Heater", ipa: "/ˈhiːtər/" },
-            { cn: "四温区加热器", en: "Four-zone heater", ipa: "/ˌfɔːr zoʊn ˈhiːtər/" },
-            { cn: "冷却通道", en: "Cooling channel", ipa: "/ˈkuːlɪŋ ˈtʃænəl/" }
-          ]},
-          { cn: "工艺气体分配", en: "Process gas distribution", ipa: "/ˈprɑːsɛs ɡæs ˌdɪstrɪˈbjuːʃən/", tone: "blue", items: [
-            { cn: "气体分配盘", en: "Showerhead", ipa: "/ˈʃaʊ.ɚ.hed/", note: "手稿标作 Shower Head。" },
-            { cn: "工艺气体", en: "Process gas", ipa: "/ˈprɑːsɛs ɡæs/" }
-          ]},
-          { cn: "射频与等离子体", en: "RF and plasma", ipa: "/ˌɑːr ˈɛf ænd ˈplæzmə/", tone: "purple", items: [
-            { cn: "射频", en: "Radio frequency · RF", ipa: "/ˈreɪdioʊ ˈfriːkwənsi/ · /ˌɑːr ˈɛf/" },
-            { cn: "等离子体", en: "Plasma", ipa: "/ˈplæzmə/" }
-          ]},
-          { cn: "辅助部件", en: "Auxiliary components", ipa: "/ɔːɡˈzɪliəri kəmˈpoʊnənts/", tone: "yellow", items: [
-            { cn: "灯", en: "Lamp", ipa: "/læmp/" },
-            { cn: "其他零部件", en: "Other parts", ipa: "/ˈʌðər pɑːrts/" },
-            { cn: "Corvus Pin（手稿字样）", en: "Corvus Pin", ipa: "", status: "专名与释义待核实", note: "可能为型号或内部命名，暂不推定含义或发音。" }
-          ]}
+        "cn": "晶圆固定与承载",
+        "en": "Wafer holding and support",
+        "ipa": "/ˈweɪfər ˈhoʊldɪŋ ænd səˈpɔːrt/",
+        "items": [
+          {
+            "cn": "ESC 静电卡盘",
+            "en": "Electrostatic chuck · ESC",
+            "ipa": "/ɪˌlek.troʊˈstæt.ɪk tʃʌk/ · /ˌiː ɛs ˈsiː/",
+            "items": [
+              {
+                "cn": "静电吸附晶圆",
+                "en": "Electrostatic wafer clamping",
+                "ipa": "/ɪˌlektroʊˈstætɪk ˈweɪfər ˈklæmpɪŋ/"
+              }
+            ]
+          },
+          {
+            "cn": "MCA 卡盘（待确认）",
+            "en": "MCA chuck",
+            "ipa": "",
+            "status": "缩写释义与读音待核实"
+          }
         ],
-        notes: [
-          "<strong>读图方式：</strong>先看每个部件解决的任务，再进入 ESC、材料与流程专题。实际配置随设备与工艺而异。",
-          "<strong>手稿保留项：</strong>MCA 与 Corvus Pin 的原文保留在索引中；由于缩写或专名无法确认，不标注 IPA。"
+        "tone": "green"
+      },
+      {
+        "cn": "温度控制",
+        "en": "Temperature control",
+        "ipa": "/ˈtem.pɚ.ə.tʃɚ kənˈtroʊl/",
+        "items": [
+          {
+            "cn": "Heater 加热器",
+            "en": "Heater",
+            "ipa": "/ˈhiːtər/"
+          },
+          {
+            "cn": "分区控温",
+            "en": "Zoned temperature control",
+            "ipa": "/zoʊnd ˈtempərətʃər kənˈtroʊl/"
+          },
+          {
+            "cn": "冷却通道",
+            "en": "Cooling channel",
+            "ipa": "/ˈkuːlɪŋ ˈtʃænəl/"
+          }
+        ],
+        "tone": "orange"
+      },
+      {
+        "cn": "工艺气体分配",
+        "en": "Process gas distribution",
+        "ipa": "/ˈprɑːsɛs ɡæs ˌdɪstrɪˈbjuːʃən/",
+        "items": [
+          {
+            "cn": "Shower Head 气体分配盘",
+            "en": "Showerhead",
+            "ipa": "/ˈʃaʊ.ɚ.hed/",
+            "items": [
+              {
+                "cn": "均匀分配工艺气体",
+                "en": "Uniform process gas distribution",
+                "ipa": "/ˈjuːnɪfɔːrm ˈprɑːses ɡæs ˌdɪstrɪˈbjuːʃən/"
+              }
+            ]
+          }
+        ],
+        "tone": "blue"
+      },
+      {
+        "cn": "射频与等离子体",
+        "en": "RF and plasma",
+        "ipa": "/ˌɑːr ˈɛf ænd ˈplæzmə/",
+        "items": [
+          {
+            "cn": "RF 射频组件",
+            "en": "Radio-frequency components · RF",
+            "ipa": "/ˈreɪdioʊ ˈfriːkwənsi kəmˈpoʊnənts/ · /ˌɑːr ˈef/",
+            "items": [
+              {
+                "cn": "等离子体激励与功率耦合",
+                "en": "Plasma excitation and power coupling",
+                "ipa": "/ˈplæzmə ˌeksaɪˈteɪʃən ænd ˈpaʊər ˈkʌplɪŋ/"
+              }
+            ]
+          }
+        ],
+        "tone": "purple"
+      },
+      {
+        "cn": "其他辅助零件",
+        "en": "Other auxiliary parts",
+        "ipa": "/ˈʌðər ɔːɡˈzɪliəri pɑːrts/",
+        "items": [
+          {
+            "cn": "Lamp 灯泡",
+            "en": "Lamp",
+            "ipa": "/læmp/"
+          },
+          {
+            "cn": "Lift Pin 顶针",
+            "en": "Lift pin",
+            "ipa": "/ˈlɪft pɪn/"
+          },
+          {
+            "cn": "连接器及其他结构件",
+            "en": "Connectors and other structural parts",
+            "ipa": "/kəˈnektərz ænd ˈʌðər ˈstrʌktʃərəl pɑːrts/"
+          }
+        ],
+        "tone": "yellow"
+      }
+    ],
+    "notes": [
+      "<strong>层级说明：</strong>按本轮提供的导图结构呈现；“静电吸附晶圆”“均匀分配工艺气体”“等离子体激励与功率耦合”分别连接对应的零部件。",
+      "<strong>待核项：</strong>MCA 保留原写法，不展开缩写，也不补猜测读音。"
+    ]
+  },
+  {
+    "id": "esc",
+    "nav": "ESC 专题",
+    "title": "ESC 静电卡盘",
+    "kicker": "02 · ESC FOCUS",
+    "subtitle": "按原始思维导图的父子关系展开。沿连线阅读；点击节点上的 − / + 可收起或展开下一级。",
+    "root": {
+      "cn": "ESC 静电卡盘",
+      "en": "Electrostatic chuck · ESC",
+      "ipa": "/ɪˌlek.troʊˈstæt.ɪk tʃʌk/ · /ˌiː ɛs ˈsiː/"
+    },
+    "groups": [
+      {
+        "cn": "工作原理",
+        "en": "Operating principles",
+        "ipa": "/ˈɑːpəreɪtɪŋ ˈprɪnsəpəlz/",
+        "items": [
+          {
+            "cn": "Coulombic 库仑力型",
+            "en": "Coulombic",
+            "ipa": "/kuːˈlɒmbɪk/ · BrE"
+          },
+          {
+            "cn": "Johnsen-Rahbek 型",
+            "en": "Johnsen–Rahbek type",
+            "ipa": "",
+            "status": "专名读音待核实"
+          },
+          {
+            "cn": "单极 / 双极电极",
+            "en": "Monopolar / bipolar electrodes",
+            "ipa": "/ˌmɑːnoʊˈpoʊlər/ · /ˌbaɪˈpoʊlər ɪˈlektroʊdz/"
+          }
+        ],
+        "tone": "green"
+      },
+      {
+        "cn": "核心材料",
+        "en": "Core materials",
+        "ipa": "/kɔːr məˈtɪriəlz/",
+        "items": [
+          {
+            "cn": "Al₂O₃ 氧化铝",
+            "en": "Aluminum oxide",
+            "ipa": "/əˈluː.mə.nəm ˈɑːk.saɪd/"
+          },
+          {
+            "cn": "AlN 氮化铝",
+            "en": "Aluminum nitride",
+            "ipa": "/əˈluː.mə.nəm ˈnaɪtraɪd/"
+          },
+          {
+            "cn": "Dielectric Material 介电材料",
+            "en": "Dielectric material",
+            "ipa": "/ˌdaɪɪˈlɛktrɪk məˈtɪriəl/"
+          }
+        ],
+        "tone": "orange"
+      },
+      {
+        "cn": "结构设计",
+        "en": "Structural design",
+        "ipa": "/ˈstrʌktʃərəl dɪˈzaɪn/",
+        "items": [
+          {
+            "cn": "Chuck Body 卡盘主体",
+            "en": "Chuck body",
+            "ipa": "/tʃʌk ˈbɑːdi/"
+          },
+          {
+            "cn": "Lift Pin 顶针",
+            "en": "Lift pin",
+            "ipa": "/ˈlɪft pɪn/"
+          },
+          {
+            "cn": "电极与连接结构",
+            "en": "Electrodes and connection structures",
+            "ipa": "/ɪˈlektroʊdz ænd kəˈnekʃən ˈstrʌktʃərz/"
+          },
+          {
+            "cn": "气体及传感器通孔",
+            "en": "Gas and sensor through-holes",
+            "ipa": "/ɡæs ænd ˈsensər ˈθruː hoʊlz/"
+          }
+        ],
+        "tone": "blue"
+      },
+      {
+        "cn": "表面加工",
+        "en": "Surface machining",
+        "ipa": "/ˈsɜːrfɪs məˈʃiːnɪŋ/",
+        "items": [
+          {
+            "cn": "Embossing 表面凸点结构",
+            "en": "Embossing",
+            "ipa": "/ɪmˈbɑːsɪŋ/"
+          },
+          {
+            "cn": "表面粗糙度",
+            "en": "Surface roughness",
+            "ipa": "/ˈsɜːrfɪs ˈrʌfnəs/"
+          },
+          {
+            "cn": "精密研磨",
+            "en": "Precision grinding",
+            "ipa": "/prɪˈsɪʒən ˈɡraɪndɪŋ/"
+          },
+          {
+            "cn": "清洁与检测",
+            "en": "Cleaning and inspection",
+            "ipa": "/ˈkliːnɪŋ ænd ɪnˈspekʃən/"
+          }
+        ],
+        "tone": "purple"
+      },
+      {
+        "cn": "温度管理",
+        "en": "Thermal management",
+        "ipa": "/ˈθɜːrməl ˈmænɪdʒmənt/",
+        "items": [
+          {
+            "cn": "Heater 加热器",
+            "en": "Heater",
+            "ipa": "/ˈhiːtər/"
+          },
+          {
+            "cn": "He 背面氦气导热",
+            "en": "Backside helium heat transfer",
+            "ipa": "/ˈbæksaɪd ˈhiːliəm hiːt ˈtrænsfɜːr/"
+          },
+          {
+            "cn": "冷却流道",
+            "en": "Cooling channel",
+            "ipa": "/ˈkuːlɪŋ ˈtʃænəl/"
+          },
+          {
+            "cn": "多温区控制",
+            "en": "Multi-zone control",
+            "ipa": "/ˌmʌlti zoʊn kənˈtroʊl/"
+          }
+        ],
+        "tone": "yellow"
+      }
+    ],
+    "notes": [
+      "<strong>分类提示：</strong>保留原图的“工作原理”分支；其中 Coulombic / Johnsen–Rahbek 描述吸附机理，单极 / 双极描述电极配置，属于不同维度。",
+      "<strong>读音：</strong>Coulombic 明示词典的英式标音；Johnsen–Rahbek 人名读音继续保留待核实标记。"
+    ],
+    "uncertain": [
+      {
+        "cn": "LAM 85/88",
+        "en": "LAM 85/88",
+        "ipa": "",
+        "status": "型号与读法待核实",
+        "note": "手稿中的型号/系列写法，未据此推定产品规格或念法。"
+      },
+      {
+        "cn": "Hydra ESC Structure（疑似手写）",
+        "en": "Hydra ESC structure",
+        "ipa": "",
+        "status": "手写拼写待核实",
+        "note": "笔迹可能有其他拼写；保留原始辨识结果，不标音。"
+      }
+    ]
+  },
+  {
+    "id": "materials",
+    "nav": "材料工艺",
+    "title": "零部件材料与制造",
+    "kicker": "03 · MATERIAL & PROCESS",
+    "subtitle": "按原始思维导图的父子关系展开。沿连线阅读；点击节点上的 − / + 可收起或展开下一级。",
+    "root": {
+      "cn": "零部件材料与制造",
+      "en": "Part materials and manufacturing",
+      "ipa": "/pɑːrt məˈtɪriəlz ænd ˌmænjuˈfæktʃərɪŋ/"
+    },
+    "groups": [
+      {
+        "cn": "材料体系",
+        "en": "Material system",
+        "ipa": "/məˈtɪriəl ˈsɪstəm/",
+        "items": [
+          {
+            "cn": "Al₂O₃ 氧化铝陶瓷",
+            "en": "Aluminum oxide ceramic",
+            "ipa": "/əˈluː.mə.nəm ˈɑːk.saɪd səˈræm.ɪk/",
+            "items": [
+              {
+                "cn": "材料纯度",
+                "en": "Material purity",
+                "ipa": "/məˈtɪriəl ˈpjʊrəti/"
+              },
+              {
+                "cn": "颜色与外观",
+                "en": "Color and appearance",
+                "ipa": "/ˈkʌlər ænd əˈpɪrəns/"
+              },
+              {
+                "cn": "绝缘性能",
+                "en": "Electrical insulation",
+                "ipa": "/ɪˈlɛktrɪkəl ˌɪnsəˈleɪʃən/"
+              }
+            ]
+          },
+          {
+            "cn": "AlN 氮化铝陶瓷",
+            "en": "Aluminum nitride ceramic",
+            "ipa": "/əˈluː.mə.nəm ˈnaɪtraɪd səˈræm.ɪk/"
+          },
+          {
+            "cn": "金属材料",
+            "en": "Metal material",
+            "ipa": "/ˈmɛtəl məˈtɪriəl/"
+          },
+          {
+            "cn": "介电材料",
+            "en": "Dielectric material",
+            "ipa": "/ˌdaɪɪˈlɛktrɪk məˈtɪriəl/"
+          }
+        ],
+        "tone": "green"
+      },
+      {
+        "cn": "加工工艺",
+        "en": "Manufacturing processes",
+        "ipa": "/ˌmænjuˈfæktʃərɪŋ ˈprɑːsɛsɪz/",
+        "items": [
+          {
+            "cn": "精密机械加工",
+            "en": "Precision machining",
+            "ipa": "/prɪˈsɪʒən məˈʃiːnɪŋ/"
+          },
+          {
+            "cn": "研磨 / 抛光",
+            "en": "Grinding / polishing",
+            "ipa": "/ˈɡraɪndɪŋ/ · /ˈpɑːlɪʃɪŋ/"
+          },
+          {
+            "cn": "Embossing 凸点结构加工",
+            "en": "Embossing",
+            "ipa": "/ɪmˈbɑːsɪŋ/"
+          },
+          {
+            "cn": "Anodizing 阳极氧化",
+            "en": "Anodizing",
+            "ipa": "/ˈæn.oʊ.daɪzɪŋ/"
+          },
+          {
+            "cn": "表面处理",
+            "en": "Surface treatment",
+            "ipa": "/ˈsɜːrfɪs ˈtriːtmənt/"
+          }
+        ],
+        "tone": "orange"
+      },
+      {
+        "cn": "结构与接口",
+        "en": "Structure and interfaces",
+        "ipa": "/ˈstrʌktʃər ænd ˈɪntərˌfeɪsɪz/",
+        "items": [
+          {
+            "cn": "Lift Pin Hole 顶针孔",
+            "en": "Lift pin hole",
+            "ipa": "/ˈlɪft pɪn hoʊl/"
+          },
+          {
+            "cn": "He Hole 氦气孔",
+            "en": "Helium hole",
+            "ipa": "/ˈhiːliəm hoʊl/"
+          },
+          {
+            "cn": "Coolant Hole 冷却液孔",
+            "en": "Coolant hole",
+            "ipa": "/ˈkuːlənt hoʊl/"
+          },
+          {
+            "cn": "TC Hole 热电偶孔",
+            "en": "Thermocouple hole (TC Hole)",
+            "ipa": "/ˈθɜːrmoʊˌkʌpəl hoʊl/"
+          }
+        ],
+        "tone": "blue"
+      },
+      {
+        "cn": "质量检测",
+        "en": "Quality inspection",
+        "ipa": "/ˈkwɑːləti ɪnˈspɛkʃən/",
+        "items": [
+          {
+            "cn": "尺寸精度",
+            "en": "Dimensional accuracy",
+            "ipa": "/dɪˈmenʃənəl ˈækjərəsi/"
+          },
+          {
+            "cn": "表面粗糙度",
+            "en": "Surface roughness",
+            "ipa": "/ˈsɜːrfɪs ˈrʌfnəs/"
+          },
+          {
+            "cn": "耐压与绝缘性能",
+            "en": "Dielectric withstand and insulation",
+            "ipa": "/ˌdaɪɪˈlektrɪk wɪðˈstænd ænd ˌɪnsəˈleɪʃən/"
+          },
+          {
+            "cn": "气密性",
+            "en": "Leak tightness",
+            "ipa": "/liːk ˈtaɪtnəs/"
+          },
+          {
+            "cn": "颗粒与洁净度",
+            "en": "Particles and cleanliness",
+            "ipa": "/ˈpɑːrtɪkəlz ænd ˈklenlinəs/"
+          }
+        ],
+        "tone": "purple"
+      }
+    ],
+    "notes": [
+      "<strong>层级说明：</strong>材料纯度、颜色与外观、绝缘性能均为“Al₂O₃ 氧化铝陶瓷”的子节点。",
+      "<strong>术语说明：</strong>TC Hole 按本轮提供的“热电偶孔”释义呈现；不将此释义外推到其他未确认的手稿缩写。Anodizing 通常用于适用金属的表面处理，具体工艺以零件要求为准。"
+    ]
+  },
+  {
+    "id": "workflow",
+    "nav": "研发流程",
+    "title": "零部件研发与交付流程",
+    "kicker": "04 · DEVELOPMENT FLOW",
+    "subtitle": "将手写页上“图纸、拆解、结构设计、测试、交货、Fab”等词重组为一条可读的开发路径。",
+    "root": {
+      "cn": "半导体设备零部件开发",
+      "en": "Semiconductor equipment part development",
+      "ipa": "/ˌsɛmɪkənˈdʌktər ɪˈkwɪpmənt pɑːrt dɪˈvɛləpmənt/"
+    },
+    "layout": "flow",
+    "groups": [
+      {
+        "cn": "需求与来源",
+        "en": "Needs and input",
+        "ipa": "/niːdz ænd ˈɪnpʊt/",
+        "tone": "green",
+        "items": [
+          {
+            "cn": "原厂图纸",
+            "en": "Original drawing",
+            "ipa": "/əˈrɪdʒənəl ˈdrɔːɪŋ/"
+          },
+          {
+            "cn": "客户样品",
+            "en": "Customer sample",
+            "ipa": "/ˈkʌstəmər ˈsæmpəl/"
+          },
+          {
+            "cn": "维修 / 替换需求",
+            "en": "Repair or replacement need",
+            "ipa": "/rɪˈpɛr ɔːr rɪˈpleɪsmənt niːd/"
+          }
         ]
       },
       {
-        id: "esc",
-        nav: "ESC 专题",
-        title: "静电卡盘 ESC",
-        kicker: "02 · ESC FOCUS",
-        subtitle: "把吸附机理、电极配置、材料、结构与热管理拆开看。机理分类与电极分类属于不同维度。",
-        root: { cn: "静电卡盘（ESC）", en: "Electrostatic chuck · ESC", ipa: "/ɪˌlek.troʊˈstæt.ɪk tʃʌk/ · /ˌiː ɛs ˈsiː/" },
-        groups: [
-          { cn: "吸附机理", en: "Chucking mechanisms", ipa: "/ˈtʃʌkɪŋ ˈmɛkəˌnɪzəmz/", tone: "green", note: "Coulomb 与 Johnsen–Rahbek 说明作用机理；不要和单极、双极电极配置混作同一分类。", items: [
-            { cn: "库仑力", en: "Coulomb force", ipa: "/ˈkuːlɑːm fɔːrs/", note: "手稿另写 Coulombic；此处用可核对的名词形式呈现。" },
-            { cn: "库仑力型（手稿术语）", en: "Coulombic", ipa: "/kuːˈlɒmbɪk/ · BrE", note: "Cambridge 未列该派生词；此处采用 Collins 标注的英式发音。" },
-            { cn: "约翰森－拉贝克效应", en: "Johnsen–Rahbek effect", ipa: "", status: "专名读音待核实", note: "技术资料确认术语与机理分类；人物姓氏发音未找到可靠统一标注。" }
-          ]},
-          { cn: "电极配置", en: "Electrode configurations", ipa: "/ɪˈlek.troʊd kənˌfɪɡjəˈreɪʃənz/", tone: "orange", items: [
-            { cn: "电极", en: "Electrode", ipa: "/ɪˈlek.troʊd/" },
-            { cn: "单极", en: "Monopolar", ipa: "/ˌmɑːnoʊˈpoʊlər/" },
-            { cn: "双极", en: "Bipolar", ipa: "/ˌbaɪˈpoʊlər/" }
-          ]},
-          { cn: "核心材料", en: "Core materials", ipa: "/kɔːr məˈtɪriəlz/", tone: "blue", items: [
-            { cn: "氧化铝（Al₂O₃）", en: "Aluminum oxide", ipa: "/əˈluː.mə.nəm ˈɑːk.saɪd/" },
-            { cn: "氮化铝（AlN）", en: "Aluminum nitride", ipa: "/əˈluː.mə.nəm ˈnaɪtraɪd/" },
-            { cn: "介电材料", en: "Dielectric material", ipa: "/ˌdaɪɪˈlɛktrɪk məˈtɪriəl/" }
-          ]},
-          { cn: "结构与接口", en: "Structure and interfaces", ipa: "/ˈstrʌktʃər ænd ˈɪntərˌfeɪsɪz/", tone: "purple", items: [
-            { cn: "卡盘主体", en: "Chuck body", ipa: "/tʃʌk ˈbɑːdi/" },
-            { cn: "内置电极", en: "Embedded electrode", ipa: "/ɪmˈbɛdɪd ɪˈlɛkˌtroʊd/" },
-            { cn: "绝缘层", en: "Insulating layer", ipa: "/ˈɪn.sə.leɪ.tɪŋ ˈleɪər/" },
-            { cn: "顶针孔", en: "Lift pin hole", ipa: "/ˈlɪft pɪn hoʊl/" },
-            { cn: "氦气孔", en: "Helium hole", ipa: "/ˈhiːliəm hoʊl/", note: "手稿简写 He Hole；这里按气体名称展开。" }
-          ]},
-          { cn: "温度管理", en: "Thermal management", ipa: "/ˈθɜːrməl ˈmænɪdʒmənt/", tone: "yellow", items: [
-            { cn: "背面氦气", en: "Backside helium", ipa: "/ˈbækˌsaɪd ˈhiːliəm/" },
-            { cn: "加热器集成", en: "Integrated heater", ipa: "/ˈɪntəˌɡreɪtɪd ˈhiːtər/" },
-            { cn: "多温区控制", en: "Multi-zone control", ipa: "/ˌmʌlti zoʊn kənˈtroʊl/" },
-            { cn: "冷却流道", en: "Cooling channel", ipa: "/ˈkuːlɪŋ ˈtʃænəl/" }
-          ]}
-        ],
-        notes: [
-          "<strong>分类提醒：</strong>Coulomb / Johnsen–Rahbek 是机理；Monopolar / Bipolar 是电极配置。一台卡盘可同时用两种维度描述。",
-          "<strong>结构提醒：</strong>有些 ESC 将加热功能集成在陶瓷部件中；背面氦气用于改善晶圆与卡盘之间的热交换。具体实现以机型资料为准。"
-        ],
-        uncertain: [
-          { cn: "LAM 85/88", en: "LAM 85/88", ipa: "", status: "型号与读法待核实", note: "手稿中的型号/系列写法，未据此推定产品规格或念法。" },
-          { cn: "Hydra ESC Structure（疑似手写）", en: "Hydra ESC structure", ipa: "", status: "手写拼写待核实", note: "笔迹可能有其他拼写；保留原始辨识结果，不标音。" }
+        "cn": "分析与测绘",
+        "en": "Analysis and measurement",
+        "ipa": "/əˈnæləsɪs ænd ˈmɛʒərmənt/",
+        "tone": "orange",
+        "items": [
+          {
+            "cn": "结构分析",
+            "en": "Structural analysis",
+            "ipa": "/ˈstrʌktʃərəl əˈnæləsɪs/"
+          },
+          {
+            "cn": "尺寸测绘",
+            "en": "Dimensional measurement",
+            "ipa": "/dɪˈmɛnʃənəl ˈmɛʒərmənt/"
+          },
+          {
+            "cn": "材料分析",
+            "en": "Material analysis",
+            "ipa": "/məˈtɪriəl əˈnæləsɪs/"
+          },
+          {
+            "cn": "功能与性能要求",
+            "en": "Functional and performance requirements",
+            "ipa": "/ˈfʌŋkʃənəl ænd pərˈfɔːrməns rɪˈkwaɪərmənts/"
+          }
         ]
       },
       {
-        id: "materials",
-        nav: "材料工艺",
-        title: "材料、工艺与检测",
-        kicker: "03 · MATERIAL & PROCESS",
-        subtitle: "从材料属性一路连到加工、接口和质量检查。笔记中的数值作为单个规格线索保留，不外推为行业通用值。",
-        root: { cn: "零部件材料与制造", en: "Part materials and manufacturing", ipa: "/pɑːrt məˈtɪriəlz ænd ˌmænjuˈfæktʃərɪŋ/" },
-        groups: [
-          { cn: "材料体系", en: "Material system", ipa: "/məˈtɪriəl ˈsɪstəm/", tone: "green", items: [
-            { cn: "氧化铝陶瓷", en: "Aluminum oxide ceramic", ipa: "/əˈluː.mə.nəm ˈɑːk.saɪd səˈræm.ɪk/", note: "化学式 Al₂O₃；手稿同时写有 Aluminum Oxide。" },
-            { cn: "氮化铝陶瓷", en: "Aluminum nitride ceramic", ipa: "/əˈluː.mə.nəm ˈnaɪtraɪd səˈræm.ɪk/" },
-            { cn: "金属材料", en: "Metal material", ipa: "/ˈmɛtəl məˈtɪriəl/" },
-            { cn: "介电材料", en: "Dielectric material", ipa: "/ˌdaɪɪˈlɛktrɪk məˈtɪriəl/" }
-          ]},
-          { cn: "材料指标与外观", en: "Material properties and appearance", ipa: "/məˈtɪriəl ˈprɑːpərtiz ænd əˈpɪrəns/", tone: "orange", items: [
-            { cn: "纯度", en: "Purity", ipa: "/ˈpjʊrəti/" },
-            { cn: "白色外观", en: "White appearance", ipa: "/waɪt əˈpɪrəns/" },
-            { cn: "绝缘性能", en: "Electrical insulation", ipa: "/ɪˈlɛktrɪkəl ˌɪnsəˈleɪʃən/" },
-            { cn: "手稿规格：纯度 > 96%", en: "Handwritten note: purity > 96%", ipa: "/ˈhændˌrɪtən noʊt ˈpjʊrəti ˈɡreɪtər ðæn ˌnaɪnti ˈsɪks pərˈsɛnt/", note: "这是照片中的单条规格线索，不代表所有氧化铝陶瓷的通用要求。" }
-          ]},
-          { cn: "加工工艺", en: "Manufacturing processes", ipa: "/ˌmænjuˈfæktʃərɪŋ ˈprɑːsɛsɪz/", tone: "blue", items: [
-            { cn: "精密机械加工", en: "Precision machining", ipa: "/prɪˈsɪʒən məˈʃiːnɪŋ/" },
-            { cn: "研磨", en: "Grinding", ipa: "/ˈɡraɪndɪŋ/" },
-            { cn: "抛光", en: "Polishing", ipa: "/ˈpɑːlɪʃɪŋ/" },
-            { cn: "凸点压制 / 压凸", en: "Embossing", ipa: "/ɪmˈbɑːsɪŋ/" },
-            { cn: "阳极氧化", en: "Anodizing", ipa: "/ˈæn.oʊ.daɪzɪŋ/", note: "主要用于适用的金属表面处理；不是所有陶瓷零件的通用工艺。" },
-            { cn: "表面处理", en: "Surface treatment", ipa: "/ˈsɜːrfɪs ˈtriːtmənt/" }
-          ]},
-          { cn: "结构孔与接口", en: "Ports and interfaces", ipa: "/pɔːrts ænd ˈɪntərˌfeɪsɪz/", tone: "purple", items: [
-            { cn: "顶针孔", en: "Lift pin hole", ipa: "/ˈlɪft pɪn hoʊl/" },
-            { cn: "氦气孔", en: "Helium hole", ipa: "/ˈhiːliəm hoʊl/" },
-            { cn: "冷却液孔", en: "Coolant hole", ipa: "/ˈkuːlənt hoʊl/" },
-            { cn: "TC 孔", en: "TC hole", ipa: "", status: "缩写释义待核实", note: "按手稿保留 TC；暂不推定其展开形式或发音。" }
-          ]},
-          { cn: "质量检查", en: "Quality inspection", ipa: "/ˈkwɑːləti ɪnˈspɛkʃən/", tone: "yellow", items: [
-            { cn: "尺寸检查", en: "Dimensional inspection", ipa: "/dɪˈmɛnʃənəl ɪnˈspɛkʃən/" },
-            { cn: "表面粗糙度", en: "Surface roughness", ipa: "/ˈsɜːrfɪs ˈrʌfnəs/" },
-            { cn: "绝缘 / 耐压检查", en: "Insulation and dielectric withstand test", ipa: "/ˌɪnsəˈleɪʃən ænd ˌdaɪɪˈlɛktrɪk wɪðˈstænd tɛst/" },
-            { cn: "气密性检查", en: "Leak test", ipa: "/liːk tɛst/" },
-            { cn: "洁净度与颗粒检查", en: "Cleanliness and particle inspection", ipa: "/ˈklɛnlinəs ænd ˈpɑːrtɪkəl ɪnˈspɛkʃən/" }
-          ]}
-        ],
-        notes: [
-          "<strong>材料 → 工艺 → 性能：</strong>材料、表面形貌、加工精度和洁净度都会影响部件表现；具体规格应以图纸与客户要求为准。",
-          "<strong>检查项说明：</strong>检测分支是帮助理解的常见检查类别整理，不代表手稿已指定这些验收标准。"
+        "cn": "设计与工艺",
+        "en": "Design and process planning",
+        "ipa": "/dɪˈzaɪn ænd ˈprɑːsɛs ˈplænɪŋ/",
+        "tone": "blue",
+        "items": [
+          {
+            "cn": "工程图纸",
+            "en": "Engineering drawing",
+            "ipa": "/ˌɛndʒɪˈnɪrɪŋ ˈdrɔːɪŋ/"
+          },
+          {
+            "cn": "材料选型",
+            "en": "Material selection",
+            "ipa": "/məˈtɪriəl səˈlɛkʃən/"
+          },
+          {
+            "cn": "工艺方案",
+            "en": "Process plan",
+            "ipa": "/ˈprɑːsɛs plæn/"
+          }
         ]
       },
       {
-        id: "workflow",
-        nav: "研发流程",
-        title: "零部件研发与交付流程",
-        kicker: "04 · DEVELOPMENT FLOW",
-        subtitle: "将手写页上“图纸、拆解、结构设计、测试、交货、Fab”等词重组为一条可读的开发路径。",
-        root: { cn: "半导体设备零部件开发", en: "Semiconductor equipment part development", ipa: "/ˌsɛmɪkənˈdʌktər ɪˈkwɪpmənt pɑːrt dɪˈvɛləpmənt/" },
-        layout: "flow",
-        groups: [
-          { cn: "需求与来源", en: "Needs and input", ipa: "/niːdz ænd ˈɪnpʊt/", tone: "green", items: [
-            { cn: "原厂图纸", en: "Original drawing", ipa: "/əˈrɪdʒənəl ˈdrɔːɪŋ/" },
-            { cn: "客户样品", en: "Customer sample", ipa: "/ˈkʌstəmər ˈsæmpəl/" },
-            { cn: "维修 / 替换需求", en: "Repair or replacement need", ipa: "/rɪˈpɛr ɔːr rɪˈpleɪsmənt niːd/" }
-          ]},
-          { cn: "分析与测绘", en: "Analysis and measurement", ipa: "/əˈnæləsɪs ænd ˈmɛʒərmənt/", tone: "orange", items: [
-            { cn: "结构分析", en: "Structural analysis", ipa: "/ˈstrʌktʃərəl əˈnæləsɪs/" },
-            { cn: "尺寸测绘", en: "Dimensional measurement", ipa: "/dɪˈmɛnʃənəl ˈmɛʒərmənt/" },
-            { cn: "材料分析", en: "Material analysis", ipa: "/məˈtɪriəl əˈnæləsɪs/" },
-            { cn: "功能与性能要求", en: "Functional and performance requirements", ipa: "/ˈfʌŋkʃənəl ænd pərˈfɔːrməns rɪˈkwaɪərmənts/" }
-          ]},
-          { cn: "设计与工艺", en: "Design and process planning", ipa: "/dɪˈzaɪn ænd ˈprɑːsɛs ˈplænɪŋ/", tone: "blue", items: [
-            { cn: "工程图纸", en: "Engineering drawing", ipa: "/ˌɛndʒɪˈnɪrɪŋ ˈdrɔːɪŋ/" },
-            { cn: "材料选型", en: "Material selection", ipa: "/məˈtɪriəl səˈlɛkʃən/" },
-            { cn: "工艺方案", en: "Process plan", ipa: "/ˈprɑːsɛs plæn/" }
-          ]},
-          { cn: "样品试制", en: "Prototype build", ipa: "/ˈproʊtəˌtaɪp bɪld/", tone: "purple", items: [
-            { cn: "样品制造", en: "Prototype manufacturing", ipa: "/ˈproʊtəˌtaɪp ˌmænjuˈfæktʃərɪŋ/" },
-            { cn: "过程记录", en: "Process documentation", ipa: "/ˈprɑːsɛs ˌdɑːkjəmɛnˈteɪʃən/" }
-          ]},
-          { cn: "测试与验证", en: "Testing and validation", ipa: "/ˈtɛstɪŋ ænd ˌvæləˈdeɪʃən/", tone: "yellow", items: [
-            { cn: "性能测试", en: "Performance testing", ipa: "/pərˈfɔːrməns ˈtɛstɪŋ/" },
-            { cn: "结果评审", en: "Results review", ipa: "/rɪˈzʌlts rɪˈvjuː/" },
-            { cn: "不符合项返修 / 迭代", en: "Rework or design iteration", ipa: "/ˌriːˈwɜːrk ɔːr dɪˈzaɪn ˌɪtəˈreɪʃən/" }
-          ]},
-          { cn: "生产与交付", en: "Production and delivery", ipa: "/prəˈdʌkʃən ænd dɪˈlɪvəri/", tone: "green", items: [
-            { cn: "批量生产", en: "Production run", ipa: "/prəˈdʌkʃən rʌn/" },
-            { cn: "Fab 晶圆厂", en: "Wafer fab", ipa: "/ˈweɪfər fæb/" },
-            { cn: "设备厂商", en: "Equipment manufacturer", ipa: "/ɪˈkwɪpmənt ˌmænjuˈfæktʃərər/" }
-          ]}
-        ],
-        notes: [
-          "<strong>流程性质：</strong>这是按手稿关键词重组的学习模型，不是原笔记的逐字还原，也不替代具体项目的工程流程。",
-          "<strong>闭环：</strong>测试结果不满足要求时，回到设计与工艺阶段调整，再制造样品验证。"
+        "cn": "样品试制",
+        "en": "Prototype build",
+        "ipa": "/ˈproʊtəˌtaɪp bɪld/",
+        "tone": "purple",
+        "items": [
+          {
+            "cn": "样品制造",
+            "en": "Prototype manufacturing",
+            "ipa": "/ˈproʊtəˌtaɪp ˌmænjuˈfæktʃərɪŋ/"
+          },
+          {
+            "cn": "过程记录",
+            "en": "Process documentation",
+            "ipa": "/ˈprɑːsɛs ˌdɑːkjəmɛnˈteɪʃən/"
+          }
+        ]
+      },
+      {
+        "cn": "测试与验证",
+        "en": "Testing and validation",
+        "ipa": "/ˈtɛstɪŋ ænd ˌvæləˈdeɪʃən/",
+        "tone": "yellow",
+        "items": [
+          {
+            "cn": "性能测试",
+            "en": "Performance testing",
+            "ipa": "/pərˈfɔːrməns ˈtɛstɪŋ/"
+          },
+          {
+            "cn": "结果评审",
+            "en": "Results review",
+            "ipa": "/rɪˈzʌlts rɪˈvjuː/"
+          },
+          {
+            "cn": "不符合项返修 / 迭代",
+            "en": "Rework or design iteration",
+            "ipa": "/ˌriːˈwɜːrk ɔːr dɪˈzaɪn ˌɪtəˈreɪʃən/"
+          }
+        ]
+      },
+      {
+        "cn": "生产与交付",
+        "en": "Production and delivery",
+        "ipa": "/prəˈdʌkʃən ænd dɪˈlɪvəri/",
+        "tone": "green",
+        "items": [
+          {
+            "cn": "批量生产",
+            "en": "Production run",
+            "ipa": "/prəˈdʌkʃən rʌn/"
+          },
+          {
+            "cn": "Fab 晶圆厂",
+            "en": "Wafer fab",
+            "ipa": "/ˈweɪfər fæb/"
+          },
+          {
+            "cn": "设备厂商",
+            "en": "Equipment manufacturer",
+            "ipa": "/ɪˈkwɪpmənt ˌmænjuˈfæktʃərər/"
+          }
         ]
       }
-    ];
+    ],
+    "notes": [
+      "<strong>流程性质：</strong>这是按手稿关键词重组的学习模型，不是原笔记的逐字还原，也不替代具体项目的工程流程。",
+      "<strong>闭环：</strong>测试结果不满足要求时，回到设计与工艺阶段调整，再制造样品验证。"
+    ]
+  }
+];
 
     const uncertainTerms = [
       { cn: "MCA 卡盘", en: "MCA chuck", ipa: "", status: "缩写释义与读音待核实", note: "手稿有此写法；不展开缩写，不猜测读音。", mapId: "overview" },
-      { cn: "TC 孔", en: "TC hole", ipa: "", status: "缩写释义待核实", note: "保留 TC 原文，不推定缩写展开。", mapId: "materials" },
       { cn: "LAM 85/88", en: "LAM 85/88", ipa: "", status: "型号与读法待核实", note: "手稿中的型号/系列字样，未据此推定规格或念法。", mapId: "esc" },
       { cn: "Hydra ESC Structure（疑似手写）", en: "Hydra ESC structure", ipa: "", status: "手写拼写待核实", note: "辨识结果可能有其他拼写。", mapId: "esc" }
     ];
@@ -846,11 +1307,12 @@
       const seen = new Map();
       maps.forEach(function (map) {
         const source = [];
-        source.push(Object.assign({}, map.root, { kind: "root" }));
-        map.groups.forEach(function (group) {
-          source.push(Object.assign({}, group, { kind: "group" }));
-          group.items.forEach(function (item) { source.push(Object.assign({}, item, { kind: "item" })); });
-        });
+        function collect(node, kind) {
+          source.push(Object.assign({}, node, { kind: kind }));
+          (node.items || []).forEach(function (child) { collect(child, "item"); });
+        }
+        collect(map.root, "root");
+        map.groups.forEach(function (group) { collect(group, "group"); });
         source.forEach(function (term) {
           const key = (term.cn || "") + "|" + (term.en || "");
           if (seen.has(key)) {
@@ -985,21 +1447,127 @@
     }
 
     function renderTree(map) {
-      const board = make("section", "map-board");
-      board.setAttribute("aria-label", map.title + "思维导图");
-      const rootWrap = make("div", "root-wrap");
-      const root = make("div", "root-card");
-      root.appendChild(make("div", "root-kicker", "主题中心 · " + map.kicker.split("·")[0].trim()));
-      root.appendChild(make("div", "root-cn", map.root.cn));
-      root.appendChild(make("div", "root-en", map.root.en));
-      root.appendChild(make("div", "root-ipa", map.root.ipa));
-      rootWrap.appendChild(root);
-      board.appendChild(rootWrap);
-      const grid = make("div", "branch-grid");
-      map.groups.forEach(function (group, index) { grid.appendChild(branchCard(group, index)); });
-      board.appendChild(grid);
+      const board = make('section', 'diagram-board');
+      board.setAttribute('aria-label', map.title + '思维导图');
+      const toolbar = make('div', 'diagram-toolbar');
+      const instructions = make('div', 'diagram-instructions', '沿箭头阅读层级 · 滚动查看 · 点击 − / + 折叠节点');
+      toolbar.appendChild(instructions);
+      const controls = make('div', 'diagram-controls');
+      function button(label, action, aria) {
+        const b = make('button', 'quiet-button', label);
+        b.type = 'button';
+        if (aria) b.setAttribute('aria-label', aria);
+        b.addEventListener('click', action);
+        controls.appendChild(b);
+        return b;
+      }
+      let zoom = 1, fitMode = false;
+      const collapsed = new Set();
+      let width = 0, height = 0, branchTop = 0;
+      const viewport = make('div', 'diagram-viewport');
+      viewport.tabIndex = 0;
+      viewport.setAttribute('aria-label', '可滚动的思维导图画布');
+      const space = make('div', 'diagram-space');
+      const canvas = make('div', 'diagram-canvas');
+      const percent = make('output', 'diagram-percent', '100%');
+      percent.setAttribute('aria-label', '当前缩放比例');
+      function applyZoom(next) {
+        const old = zoom;
+        const centerX = (viewport.scrollLeft + viewport.clientWidth / 2) / old;
+        const centerY = (viewport.scrollTop + viewport.clientHeight / 2) / old;
+        zoom = Math.max(.1, Math.min(1.75, next));
+        canvas.style.transform = 'scale(' + zoom + ')';
+        space.style.width = Math.ceil(width * zoom) + 'px';
+        space.style.height = Math.ceil(height * zoom) + 'px';
+        percent.textContent = Math.round(zoom * 100) + '%';
+        viewport.scrollLeft = Math.max(0, centerX * zoom - viewport.clientWidth / 2);
+        viewport.scrollTop = Math.max(0, centerY * zoom - viewport.clientHeight / 2);
+      }
+      button('−', function () { fitMode = false; applyZoom(zoom - .15); }, '缩小导图');
+      controls.appendChild(percent);
+      button('+', function () { fitMode = false; applyZoom(zoom + .15); }, '放大导图');
+      button('适合宽度', function () { fitMode = true; applyZoom((viewport.clientWidth - 12) / width); viewport.scrollLeft = 0; viewport.scrollTop = 0; });
+      button('100%', function () { fitMode = false; applyZoom(1); });
+      button('全部展开', function () { collapsed.clear(); draw(); });
+      button('收起分支', function () { map.groups.forEach(function (g) { collapsed.add(g); }); draw(); });
+      toolbar.appendChild(controls);
+      board.appendChild(toolbar);
+      const jump = make('div', 'diagram-jumps');
+      jump.appendChild(make('span', '', '定位分支：'));
+      map.groups.forEach(function (g, i) {
+        const b = make('button', 'filter-chip', g.cn);
+        b.type = 'button';
+        b.addEventListener('click', function () {
+          viewport.scrollTo({left: Math.max(0, (36 + i * 304) * zoom - 18), top: Math.max(0, branchTop * zoom - 18), behavior: 'instant'});
+        });
+        jump.appendChild(b);
+      });
+      board.appendChild(jump);
+      space.appendChild(canvas); viewport.appendChild(space); board.appendChild(viewport);
+      const palette = {green:'#648c7d',orange:'#c8774e',blue:'#607f9c',purple:'#8577a1',yellow:'#b58c3f'};
+      function draw() {
+        if (!board.isConnected) return;
+        canvas.replaceChildren();
+        width = 72 + map.groups.length * 304 - 24;
+        canvas.style.width = width + 'px';
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.classList.add('diagram-links');
+        svg.setAttribute('aria-hidden', 'true');
+        const markerId = 'arrow-' + map.id;
+        svg.innerHTML = '<defs><marker id="' + markerId + '" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="context-stroke"/></marker></defs>';
+        canvas.appendChild(svg);
+        function node(item, x, y, w, tone, isRoot, descendants) {
+          const n = conceptCard(Object.assign({}, item, {note: ''}), true);
+          n.className = 'concept-card graph-node tone-' + tone + (isRoot ? ' graph-root' : '');
+          n.style.left = x + 'px'; n.style.top = y + 'px'; n.style.width = w + 'px';
+          if (descendants && descendants.length) {
+            const toggle = make('button', 'node-toggle', collapsed.has(item) ? '+' : '−');
+            toggle.type = 'button';
+            toggle.setAttribute('aria-label', (collapsed.has(item) ? '展开' : '收起') + item.cn + '的子节点');
+            toggle.setAttribute('aria-expanded', String(!collapsed.has(item)));
+            toggle.addEventListener('click', function () { if (collapsed.has(item)) collapsed.delete(item); else collapsed.add(item); draw(); });
+            n.appendChild(toggle);
+          }
+          canvas.appendChild(n);
+          return {x:x,y:y,w:w,h:n.offsetHeight};
+        }
+        function link(d, color) {
+          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          p.setAttribute('d', d); p.setAttribute('stroke', color); p.setAttribute('marker-end', 'url(#' + markerId + ')'); svg.appendChild(p);
+        }
+        const root = node(map.root, (width - 320)/2, 32, 320, 'green', true, null);
+        const groupY = root.y + root.h + 88;
+        branchTop = groupY;
+        let bottom = groupY;
+        function children(parentItem, parentBox, childItems, x, y, w, color) {
+          if (collapsed.has(parentItem)) return y;
+          for (const child of childItems || []) {
+            const box = node(child, x, y, w, parentItem.tone || color.tone, false, child.items);
+            const trunk = x - 13;
+            link('M ' + (parentBox.x+parentBox.w/2) + ' ' + (parentBox.y+parentBox.h) + ' V ' + (parentBox.y+parentBox.h+10) + ' H ' + trunk + ' V ' + (box.y+box.h/2) + ' H ' + (box.x-2), color.hex);
+            y += box.h + 20;
+            if (child.items && !collapsed.has(child)) y = children(child, box, child.items, x+24, y, w-24, color);
+          }
+          return y;
+        }
+        map.groups.forEach(function (group, i) {
+          const x = 36 + i * 304;
+          const box = node(group, x, groupY, 280, group.tone, false, group.items);
+          const hex = palette[group.tone] || palette.green;
+          link('M ' + (root.x+root.w/2) + ' ' + (root.y+root.h) + ' V ' + (groupY-40) + ' H ' + (box.x+box.w/2) + ' V ' + (box.y-3), hex);
+          bottom = Math.max(bottom, children(group, box, group.items, x+26, box.y+box.h+30, 254, {tone:group.tone,hex:hex}));
+        });
+        height = bottom + 24;
+        canvas.style.height = height + 'px';
+        svg.setAttribute('width', width); svg.setAttribute('height', height);
+        applyZoom(fitMode ? (viewport.clientWidth-12)/width : zoom);
+      }
+      requestAnimationFrame(function () { fitMode = viewport.clientWidth >= 800; draw(); if (!fitMode) viewport.scrollLeft = (width - viewport.clientWidth)/2; });
+      const observer = new ResizeObserver(function () { if (!board.isConnected) { observer.disconnect(); return; } if (fitMode) applyZoom((viewport.clientWidth-12)/width); });
+      observer.observe(viewport);
       return board;
     }
+
 
     function renderFlow(map) {
       const board = make("section", "map-board flow-board");
@@ -1076,10 +1644,13 @@
         ["Cambridge · machining", "https://dictionary.cambridge.org/pronunciation/english/machining"],
         ["Cambridge · purity", "https://dictionary.cambridge.org/pronunciation/english/purity"],
         ["Cambridge · temperature", "https://dictionary.cambridge.org/pronunciation/english/temperature"],
+        ["Cambridge · excitation", "https://dictionary.cambridge.org/pronunciation/english/excitation"],
+        ["Cambridge · coupling", "https://dictionary.cambridge.org/pronunciation/english/coupling"],
         ["Cambridge · electrode", "https://dictionary.cambridge.org/pronunciation/english/electrode"],
         ["Cambridge · showerhead", "https://dictionary.cambridge.org/pronunciation/english/showerhead"],
         ["Cambridge · insulate", "https://dictionary.cambridge.org/pronunciation/english/insulate"],
         ["Cambridge · Coulomb", "https://dictionary.cambridge.org/pronunciation/english/coulomb"],
+        ["Collins · thermocouple", "https://www.collinsdictionary.com/dictionary/english/thermocouple"],
         ["Collins · Coulombic (BrE)", "https://www.collinsdictionary.com/us/dictionary/english/coulombic"]
       ];
       panel.appendChild(links);
@@ -1099,9 +1670,10 @@
       const map = mapFor(id);
       crumb.textContent = map.nav;
       main.replaceChildren();
-      const count = map.groups.reduce(function (sum, group) { return sum + group.items.length + 1; }, 1);
+      function countNode(node) { return 1 + (node.items || []).reduce(function (sum, child) { return sum + countNode(child); }, 0); }
+      const count = 1 + map.groups.reduce(function (sum, group) { return sum + countNode(group); }, 0);
       main.appendChild(pageHead(map.kicker, map.title, map.subtitle, count, "图谱节点"));
-      main.appendChild(mapToolbar());
+      if (map.layout === "flow") main.appendChild(mapToolbar());
       main.appendChild(map.layout === "flow" ? renderFlow(map) : renderTree(map));
       main.appendChild(renderNotes(map.notes));
       const uncertain = renderUncertain(map);
